@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Set;
 
 /**
+ * Mind POJO
+ *
  * Created by Mathieu Nayrolles <mathieu.nayrolles@gmail.com> on 12/1/15.
  */
 public class Mind {
@@ -13,7 +15,6 @@ public class Mind {
     /**
      * Minds characteristics
      */
-
     @SerializedName("_id")
     private String              id;
     @SerializedName("name")
@@ -36,7 +37,7 @@ public class Mind {
     private int[]               location;
 
     /**
-     * User's characteristic to this mind
+     * User's characteristic for this mind
      */
     @SerializedName("favorited")
     private boolean             favorited;
@@ -61,6 +62,33 @@ public class Mind {
     private transient int           nbUps;
     private transient int           kilometersSpan;
 
+    public Mind(String content, Set<String> hashtags, String type, int[] location) {
+        this.content = content;
+        this.hashtags = hashtags;
+        this.type = type;
+        this.location = location;
+        this.author = true;
+        this.openned = true;
+        this.createdAt = new Date();
+        this.lastUpdatedAt = new Date();
+        this.nbReactions = 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Mind)) return false;
+
+        Mind mind = (Mind) o;
+
+        return id.equals(mind.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 
     public String getId() {
         return id;
@@ -134,6 +162,13 @@ public class Mind {
         this.city = city;
     }
 
+    public int[] getLocation() {
+        return location;
+    }
+
+    public void setLocation(int[] location) {
+        this.location = location;
+    }
 
     public boolean isFavorited() {
         return favorited;
@@ -167,4 +202,51 @@ public class Mind {
         this.nbUnreadReactions = nbUnreadReactions;
     }
 
+    public Set<Reaction> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(Set<Reaction> reactions) {
+        this.reactions = reactions;
+    }
+
+    public boolean isReported() {
+        return reported;
+    }
+
+    public void setReported(boolean reported) {
+        this.reported = reported;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+
+    public int getPointsAcquired() {
+        return pointsAcquired;
+    }
+
+    public void setPointsAcquired(int pointsAcquired) {
+        this.pointsAcquired = pointsAcquired;
+    }
+
+    public int getNbUps() {
+        return nbUps;
+    }
+
+    public void setNbUps(int nbUps) {
+        this.nbUps = nbUps;
+    }
+
+    public int getKilometersSpan() {
+        return kilometersSpan;
+    }
+
+    public void setKilometersSpan(int kilometersSpan) {
+        this.kilometersSpan = kilometersSpan;
+    }
 }
