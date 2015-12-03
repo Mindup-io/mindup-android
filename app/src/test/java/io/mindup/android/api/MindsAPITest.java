@@ -46,4 +46,19 @@ public class MindsAPITest {
         assertEquals(minds[0].getType(), "team");
         assertEquals(minds[1].getType(), "user");
     }
+
+    @Test
+    public void getMind() throws Exception {
+
+        MindsAPI mindsAPI = Mockito.spy(new MindsAPI());
+
+        Mockito.when(mindsAPI.fetchJson("https://api0.mindup.io/v2/mind/get_one/42/5660a0bdd6c79f0655d9d6a9"))
+                .thenReturn("\n" +
+                        "{\"_id\":\"5660a0bdd6c79f0655d9d6a9\",\"name\":\"Ptn je suis dans la grosse perde! !\uD83D\uDE22\uD83D\uDE20\",\"creation_time\":\"2015-12-03T20:06:21.861Z\",\"nb_messages\":29,\"nb_favs\":1,\"last_update\":\"2015-12-03T21:38:40.497Z\",\"type\":\"user\",\"tags\":[],\"last_msg_time\":\"2015-12-03T21:38:40.497Z\",\"favorited\":false,\"isOwner\":false,\"loc\":[0,0],\"city\":\"Earth\",\"nb_read_messages\":0,\"opened\":false}");
+
+        Mind mind = mindsAPI.getMind("5660a0bdd6c79f0655d9d6a9");
+
+        assertEquals(mind.getId(), "5660a0bdd6c79f0655d9d6a9");
+
+    }
 }

@@ -15,6 +15,7 @@ public class MindsAPI extends API{
 
 
     /**
+     * Build a query and fetch minds according to parameters
      *
      * @param limit     optional, integer. This is the limit by category, so if no
      *                  category set, it will return 'limit' by category.
@@ -82,5 +83,26 @@ public class MindsAPI extends API{
                 this.fetchJson(queryBuilder.toString())
                 , Mind[].class
         );
+    }
+
+    /**
+     *
+     * @param mindId
+     * @return
+     */
+    public Mind getMind(String mindId) throws IOException{
+
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(API_URL)
+                .append("/mind/get_one/")
+                .append(USER_ID)
+                .append("/")
+                .append(mindId);
+
+        return this.gson.fromJson(
+                this.fetchJson(queryBuilder.toString())
+                , Mind.class
+        );
+
     }
 }
