@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -95,7 +96,7 @@ public abstract class API {
     }
 
     /**
-     * Get the last consumed URL.
+     * Gets the last consumed URL.
      *
      * @return  last consumed URL.
      */
@@ -105,22 +106,56 @@ public abstract class API {
 
     /**
      * Opens a connection to stringUrl, reads and returns the served json.
+     * The http request is a get
      *
      * @param stringUrl
      * @return A string containing JSON
      * @throws IOException
      */
-    protected String fetchJson(String stringUrl) throws IOException {
+    protected String getJson(String stringUrl) throws IOException {
 
-        URL url = new URL(stringUrl);
-
-        HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+        String response = readHttpResponse(openHttpGetConnection(stringUrl));
 
         /**
-         * For some reasons, the default user-agent of Android (which is java.*)
-         * is always rejected by the API server (403 errors).
+         * If we made it this far (no IOException raised) it means the call was successful.
+         * Therefore, we update the lastRequest value.
+         * Even if the call is successful (i.e http 20x), the response could be null.
          */
-        httpsURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
+        this.lastRequest = stringUrl;
+
+        return response;
+    }
+
+    /**
+     * Opens a connection to stringUrl, reads and returns the served json.
+     * The http request is a post
+     *
+     * @param stringUrl
+     * @param postData
+     * @return String - the post response
+     * @throws IOException
+     */
+    protected String postJson(String stringUrl, String postData) throws IOException{
+
+        String response = readHttpResponse(openHttpPostConnection(stringUrl, postData));
+
+        /**
+         * If we made it this far (no IOException raised) it means the call was successful.
+         * Therefore, we update the lastRequest value.
+         * Even if the call is successful (i.e http 20x), the response could be null.
+         */
+        this.lastRequest = stringUrl;
+
+        return response;
+    }
+
+    /**
+     * Reads the response from an https call
+     * @param httpsURLConnection
+     * @return String - http response
+     * @throws IOException
+     */
+    private String readHttpResponse(HttpsURLConnection httpsURLConnection) throws IOException{
 
         BufferedReader in = new BufferedReader(
                 // Json encoding is UTF-8
@@ -134,13 +169,60 @@ public abstract class API {
         in.close();
         httpsURLConnection.disconnect();
 
-        /**
-         * If we made it this far (no IOException raised) it means the call was successful.
-         * Therefore, we update the lastRequest value.
-         * Even if the call is successful (i.e http 20x), the response could be null.
-         */
-        this.lastRequest = stringUrl;
-
         return response;
     }
+
+    /**
+     * Opens a http get connection
+     *
+     * @param stringUrl
+     * @return HttpsURLConnection configured for get calls
+     * @throws IOException
+     */
+    private HttpsURLConnection openHttpGetConnection(String stringUrl) throws IOException{
+
+        URL url = new URL(stringUrl);
+
+        HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+        /**
+         * For some reasons, the default user-agent of Android (which is java.*)
+         * is always rejected by the API server (403 errors).
+         */
+        httpsURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        return httpsURLConnection;
+    }
+
+    /**
+     * Opens a http post connection and post data
+     *
+     * @param stringUrl
+     * @param data
+     * @return HttpsURLConnection configured for post
+     * @throws IOException
+     */
+    private HttpsURLConnection openHttpPostConnection(String stringUrl, String data) throws IOException{
+
+        /**
+         * Get connection are default connection, so we can start from there
+         * and update with remaining specificities for post.
+         */
+        HttpsURLConnection httpsURLConnection = openHttpGetConnection(stringUrl);
+
+        //http://stackoverflow.com/a/2026299/1871890
+        httpsURLConnection.setRequestMethod("POST");
+        httpsURLConnection.setDoOutput(true);
+        httpsURLConnection.setRequestProperty("Content-type", "application/json");
+        httpsURLConnection.setRequestProperty("Accept", "*/*");
+
+        //write the post data
+        OutputStreamWriter out = new OutputStreamWriter(httpsURLConnection.getOutputStream());
+        out.write(data);
+        out.flush();
+        out.close();
+
+        return httpsURLConnection;
+    }
+
+
 }
