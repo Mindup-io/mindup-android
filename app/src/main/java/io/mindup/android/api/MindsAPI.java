@@ -1,5 +1,7 @@
 package io.mindup.android.api;
 
+import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -80,15 +82,16 @@ public class MindsAPI extends API{
         }
 
         return this.gson.fromJson(
-                this.fetchJson(queryBuilder.toString())
+                this.getJson(queryBuilder.toString())
                 , Mind[].class
         );
     }
 
     /**
+     * Get a mind by its id
      *
      * @param mindId
-     * @return
+     * @return Mind
      */
     public Mind getMind(String mindId) throws IOException{
 
@@ -100,9 +103,60 @@ public class MindsAPI extends API{
                 .append(mindId);
 
         return this.gson.fromJson(
-                this.fetchJson(queryBuilder.toString())
+                this.getJson(queryBuilder.toString())
                 , Mind.class
         );
 
+    }
+
+    /**
+     * Favorite / Unfavorite a mind and return an updated mind
+     * Note that the nbFavorites value of the updated mind can be
+     * increase / decrease by more than one. The new value reflects
+     * also the changes since the mind was last synchronized.
+     *
+     * @param mind
+     * @return updated mind
+     * @throws IOException
+     */
+    public Mind favUnFavMind(Mind mind) throws IOException{
+
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(API_URL)
+                .append("/favorite/")
+                .append(USER_ID)
+                .append("/")
+                .append(mind.getId())
+                .append("/")
+                /**
+                 * If the mind is already favorited, we unfavorite it
+                 * Otherwise, we favorite it.
+                 */
+                .append(mind.isFavorited() ? "unfav" : "fav");
+
+        /**
+         * The API response cannot be mapped to a POJO,
+         * It's only composed of two fields :
+         *  nb_favs (Int, equivalent to Mind.nbFavorited)
+         *  favorited (boolean, equivalent to Mind.isFavorited
+         */
+        JsonObject jsonResponse = gson.fromJson(
+                /**
+                 * TODO: This API endpoint is a post,
+                 * yet, it expects query parameters.
+                 * So, we send a empty string here as data to
+                 * fit the postJson signature.
+                 *
+                 * There's something to change server-side before
+                 * we go live with this.
+                 */
+                this.postJson(queryBuilder.toString(), ""),
+                JsonObject.class);
+
+        //update the mind with the API response
+        mind.setFavorited(jsonResponse.get("favorited").getAsBoolean());
+        mind.setNbFavorites(jsonResponse.get("nb_favs").getAsInt());
+
+        return mind;
     }
 }

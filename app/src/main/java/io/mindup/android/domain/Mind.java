@@ -2,6 +2,7 @@ package io.mindup.android.domain;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 
@@ -62,6 +63,10 @@ public class Mind {
     private transient int           nbUps;
     private transient int           kilometersSpan;
 
+    public Mind(){
+
+    }
+
     public Mind(String content, Set<String> hashtags, String type, int[] location) {
         this.content = content;
         this.hashtags = hashtags;
@@ -88,6 +93,32 @@ public class Mind {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Mind{" +
+                "id='" + id + '\'' +
+                ", content='" + content + '\'' +
+                ", hashtags=" + hashtags +
+                ", createdAt=" + createdAt +
+                ", lastUpdatedAt=" + lastUpdatedAt +
+                ", nbFavorites=" + nbFavorites +
+                ", nbReactions=" + nbReactions +
+                ", type='" + type + '\'' +
+                ", city='" + city + '\'' +
+                ", location=" + Arrays.toString(location) +
+                ", favorited=" + favorited +
+                ", openned=" + openned +
+                ", author=" + author +
+                ", nbUnreadReactions=" + nbUnreadReactions +
+                ", reactions=" + reactions +
+                ", reported=" + reported +
+                ", cost=" + cost +
+                ", pointsAcquired=" + pointsAcquired +
+                ", nbUps=" + nbUps +
+                ", kilometersSpan=" + kilometersSpan +
+                '}';
     }
 
     public String getId() {
