@@ -2,6 +2,8 @@ package io.mindup.android.api;
 
 import com.google.gson.JsonObject;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -156,6 +158,37 @@ public class MindsAPI extends API{
         //update the mind with the API response
         mind.setFavorited(jsonResponse.get("favorited").getAsBoolean());
         mind.setNbFavorites(jsonResponse.get("nb_favs").getAsInt());
+
+        return mind;
+    }
+
+    /**
+     * Reports a mind
+     * @param mind
+     * @return the updated mind
+     * @throws Exception
+     */
+    public Mind reportMind(Mind mind) throws Exception{
+
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(API_URL)
+                .append("/report/topic/")
+                .append(USER_ID)
+                .append("/")
+                .append(mind.getId());
+
+
+        /**
+         * TODO: If favorite is a post, it'll make sense that
+         * report was a post too.
+         *
+         * Also, the API doesn't provide any response, only a 200
+         * http code. So no Gson parsing here.
+         * Successful call should be an empty string.
+         */
+        String response = this.getJson(queryBuilder.toString());
+
+        mind.setReported(true);
 
         return mind;
     }

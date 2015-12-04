@@ -92,4 +92,22 @@ public class MindsAPITest {
         assertEquals(2, mind.getNbFavorites());
 
     }
+
+    @Test
+    public void reportMind() throws Exception {
+
+        MindsAPI mindsAPI = Mockito.spy(new MindsAPI());
+
+        Mockito.when(mindsAPI.getJson(API.API_URL + "/report/topic/42/5660a0bdd6c79f0655d9d6a9"))
+                .thenReturn("{\"nb_favs\":2, \"favorited\":false}");
+
+        Mind mind = new Mind();
+
+        mind.setId("5660a0bdd6c79f0655d9d6a9");
+        mind.setReported(false);
+
+        mind = mindsAPI.reportMind(mind);
+
+        assertEquals(true, mind.isReported());
+    }
 }
